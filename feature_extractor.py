@@ -1,51 +1,58 @@
+      
 # feature_extractor.py
 
 import numpy as np
 import librosa
 from scipy.signal import lfilter
 import os
+import noisereduce as nr  # <--- 1. IMPORTAR LIBRERÍA
 
 import config
 import audio_utils
 
-# Obtenemos el nivel de verbosidad desde la configuración
 VERBOSITY = config.LOGGING.get("verbosity_level", 1)
 
 def load_and_clean_audio(audio_path):
     """
-    Carga un archivo de audio, lo limpia y pre-procesa usando librosa.effects.trim.
+    Carga, limpia y pre-procesa el audio, incluyendo supresión de ruido opcional.
     """
     if VERBOSITY >= 2:
-        print(f"  [FEAT] Cargando y limpiando: {os.path.basename(audio_path)}")
+        print(f"  [FEAT] Cargando: {os.path.basename(audio_path)}")
 
     try:
         signal, sr = librosa.load(audio_path, sr=config.AUDIO['sample_rate'])
-        initial_duration = len(signal) / sr
     except Exception as e:
         print(f"  [ERROR] No se pudo cargar {os.path.basename(audio_path)}: {e}")
         return np.array([]), config.AUDIO['sample_rate']
 
-    # --- LÓGICA ORIGINAL RESTAURADA ---
-    # 1. Pre-énfasis
+    # --- 2. APLICAR REDUCCIÓN DE RUIDO (OPCIONAL) ---
+    if config.AUDIO.get("use_noise_reduction", False):
+        if VERBOSITY >= 2:
+            print("  [FEAT] Aplicando supresión de ruido...")
+        
+        # noisereduce funciona mejor en señales no pre-enfatizadas.
+        # Lo aplicamos directamente a la señal original.
+        signal = nr.reduce_noise(
+            y=signal, 
+            sr=sr, 
+            prop_decrease=config.AUDIO.get("noise_reduce_prop_decrease", 1.0)
+        )
+
+    # 3. Pre-énfasis
     preemphasis_coeff = config.AUDIO['preemphasis_alpha']
     emphasized_signal = lfilter([1, -preemphasis_coeff], [1], signal)
     
-    # 2. Eliminar silencios con librosa.effects.trim
+    # 4. Eliminar silencios con librosa.effects.trim
     trimmed_signal, _ = librosa.effects.trim(
         emphasized_signal, top_db=config.AUDIO['trim_db']
     )
-    final_duration = len(trimmed_signal) / sr
     
-    if VERBOSITY >= 2:
-        print(f"  [FEAT] Librosa Trim: Duración original {initial_duration:.2f}s -> final {final_duration:.2f}s")
-
-    # Si la señal es muy corta después de la limpieza, la omitimos
-    if len(trimmed_signal) < 400: # ~25ms
+    if len(trimmed_signal) < 400: # Umbral mínimo
         if VERBOSITY >= 1:
-            print(f"  [WARN] Señal demasiado corta después de trim para {os.path.basename(audio_path)}. Se omite.")
+            print(f"  [WARN] Señal demasiado corta después de la limpieza para {os.path.basename(audio_path)}. Se omite.")
         return np.array([]), sr
 
-    # 3. Normalización de amplitud pico
+    # 5. Normalización de amplitud pico
     normalized_signal = trimmed_signal / (np.max(np.abs(trimmed_signal)) + 1e-10)
     
     return normalized_signal, config.AUDIO['sample_rate']

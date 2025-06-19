@@ -9,10 +9,14 @@ AUDIO = {
     # Umbral en decibelios (dB) para librosa.effects.trim.
     # Un valor más alto (ej. 30) es más estricto y corta más.
     # Un valor más bajo (ej. 20) es más permisivo.
-    "trim_db": 25,
-}
+    "trim_db": 25, 
+    # Activa o desactiva la supresión de ruido con la librería noisereduce.
+    "use_noise_reduction": True,
 
-# -----------------------------------------------------------------------------
+    # Parámetros para noisereduce. 'prop_decrease' controla la agresividad.
+    # Un valor de 1.0 es el estándar. Más bajo es menos agresivo.
+    "noise_reduce_prop_decrease": 1.0
+}
 # -- CONFIGURACIÓN DE EXTRACCIÓN DE CARACTERÍSTICAS --
 # -----------------------------------------------------------------------------
 FEATURES = {

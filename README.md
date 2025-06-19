@@ -109,7 +109,7 @@ El modelo entrenado se guardará como `vq_robust_model.joblib` en la carpeta `./
 
 Lanza la interfaz gráfica para el reconocimiento en tiempo real.
 ```bash
-python gui_recognizer.py
+python gui.py
 ```
 Haz clic en el ícono del micrófono, di una de tus palabras clave y observa el resultado. La consola te mostrará logs detallados de todo el proceso.
 
