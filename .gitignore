@@ -1,0 +1,25 @@
+# Pycache
+__pycache__/
+*.py[cod]
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual environment
+venv/
+.env
+
+# Logs
+*.log
+
+# macOS files
+.DS_Store
+# Python bytecode
+*.pyc
+*.pyo
+
+# carpeta del dataset para que sea generada por el script
+dataset/
+
+# carpeta de voces en crudo
+VOICE/
