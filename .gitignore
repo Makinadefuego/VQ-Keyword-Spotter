@@ -23,3 +23,14 @@ dataset/
 
 # carpeta de voces en crudo
 VOICE/
+
+#imagenes
+*.png
+
+# txt files
+*.txt
+
+# audio files
+*.wav
+*.mp3
+*.m4a

@@ -15,7 +15,7 @@ from vq_classifier import VQClassifier
 SAMPLE_RATE = config.AUDIO['sample_rate']
 CHUNK_DURATION = 0.05  # Duración de cada bloque de audio a procesar (en segundos)
 CHUNK_SAMPLES = int(SAMPLE_RATE * CHUNK_DURATION)
-ENERGY_THRESHOLD = 0.03 # Umbral de energía (RMS) para detectar el inicio del habla. ¡AJUSTA ESTE VALOR!
+ENERGY_THRESHOLD = 0.4 # Umbral de energía (RMS) para detectar el inicio del habla. ¡AJUSTA ESTE VALOR!
 SILENCE_CHUNKS_TRIGGER = 10 # Número de bloques de silencio consecutivos para detener la grabación
 
 class RealTimeRecognizer:

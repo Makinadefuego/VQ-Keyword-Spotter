@@ -1,45 +1,27 @@
 # config.py
 
-# -----------------------------------------------------------------------------
-# -- CONFIGURACIÓN DE PROCESAMIENTO DE AUDIO --
-# -----------------------------------------------------------------------------
 AUDIO = {
     "sample_rate": 16000,
     "preemphasis_alpha": 0.97,
-    # Umbral en decibelios (dB) para librosa.effects.trim.
-    # Un valor más alto (ej. 30) es más estricto y corta más.
-    # Un valor más bajo (ej. 20) es más permisivo.
-    "trim_db": 25, 
-    # Activa o desactiva la supresión de ruido con la librería noisereduce.
-    "use_noise_reduction": True,
-
-    # Parámetros para noisereduce. 'prop_decrease' controla la agresividad.
-    # Un valor de 1.0 es el estándar. Más bajo es menos agresivo.
-    "noise_reduce_prop_decrease": 1.0
+    "trim_db": 25,
+    "spectral_subtraction": {"alpha": 2.0, "beta": 0.01}
 }
-# -- CONFIGURACIÓN DE EXTRACCIÓN DE CARACTERÍSTICAS --
-# -----------------------------------------------------------------------------
+
 FEATURES = {
     "frame_length_ms": 25,
     "frame_stride_ms": 10,
-    "n_mfcc": 13,
-    "use_mfcc": True,
-    "use_delta": True,
-    "use_delta2": True,
+    "use_mfcc": True, "n_mfcc": 13,
+    "use_delta": True, "use_delta2": True,
     "use_energy": True,
     "use_pitch": True,
-    "use_spectral_features": True,
-    "n_gfcc": 13,
-    "use_gfcc": True,
-    "use_advanced_spectral_features": True,
 }
 
-# -----------------------------------------------------------------------------
-# -- CONFIGURACIÓN DEL MODELO Y RUTAS --
-# -----------------------------------------------------------------------------
 MODEL = {
-    "vq_clusters": 64,
-    "garbage_label": "_garbage_"
+    "vq_clusters": 32,
+    "gmm_components": 16,
+    "garbage_label": "_garbage_",
+    "rejection_threshold_vq": 10.0,
+    "rejection_threshold_gmm": -100.0
 }
 
 PATHS = {
@@ -47,33 +29,32 @@ PATHS = {
     "dataset_train": "./dataset/train",
     "dataset_test": "./dataset/test",
     "background_noises": "./background_noises",
-    "output_model": "./models/vq_robust_model.joblib"
+    "output_model_vq": "./models/vq_model.joblib",
+    "output_model_gmm": "./models/gmm_model.joblib"
 }
 
-# -----------------------------------------------------------------------------
-# -- CONFIGURACIÓN DE AUMENTO DE DATOS --
-# -----------------------------------------------------------------------------
-AUGMENTATION = {
-    "augmentations_per_file": 10,
-    "noise_probability": 0.8,
-    "noise_min_snr": 5.0,
-    "noise_max_snr": 25.0,
-    "pitch_probability": 0.5,
-    "stretch_probability": 0.5,
+DATASET = {
+    'train_split_ratio': 0.8,
+    'audio_extensions': ['.wav', '.m4a', '.mp3'],
+    'known_words': ["abrir", "activar", "alarma", "apagar", "ayuda", "bajar", "cancelar", "cerrar", "luz", "musica", "no", "persiana", "puerta", "si", "subir"],
+    'special_labels': ["_garbage_"]
 }
 
-# -----------------------------------------------------------------------------
-# -- CONFIGURACIÓN DE LA GUI Y LOGS --
-# -----------------------------------------------------------------------------
 GUI = {
-    "title": "Asistente de Voz VQ",
-    "window_size": "400x500",
+    "title": "Laboratorio de Reconocimiento de Voz",
     "appearance": "dark",
-    # El VAD ya no se usa, pero la lógica de la GUI se basa en energía.
-    # Mantenemos los triggers de silencio.
-    "silence_chunks_trigger": 15,
+    "silence_chunks_trigger": 15 # Número de chunks de silencio para detener grabación en GUI
 }
 
-LOGGING = {
-    "verbosity_level": 2, # 0: Mínimo, 1: Normal, 2: Detallado
+LOGGING = {"verbosity_level": 1}
+
+# --- SECCIÓN AÑADIDA / CORREGIDA ---
+# Esta sección es necesaria para el script augment_dataset.py
+AUGMENTATION = {
+    'augmentations_per_file': 3,  # Crea 3 versiones aumentadas por cada archivo original
+    'noise_probability': 0.9,     # 90% de las veces, añade ruido de fondo
+    'noise_min_snr': 5,           # Relación señal/ruido mínima (más bajo = más ruidoso)
+    'noise_max_snr': 20,          # Relación señal/ruido máxima
+    'pitch_probability': 0.5,     # 50% de las veces, cambia el tono del audio
+    'stretch_probability': 0.5    # 50% de las veces, cambia la velocidad del audio
 }
